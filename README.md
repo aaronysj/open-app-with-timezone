@@ -1,4 +1,4 @@
-# Open App with Time Zone
+# App Time Zone Launcher
 
 Relaunch any macOS app with its own time zone, without changing the system time zone. For example, keep a chat app on Beijing time while your Mac stays on Los Angeles time.
 
