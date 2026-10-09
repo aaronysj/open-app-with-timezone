@@ -1,4 +1,4 @@
-# Open App with Time Zone Changelog
+# App Time Zone Launcher Changelog
 
 ## [Initial Version] - {PR_MERGE_DATE}
 
