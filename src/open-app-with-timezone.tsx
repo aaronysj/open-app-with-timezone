@@ -1,8 +1,10 @@
 import {
   Action,
+  Alert,
   ActionPanel,
   Application,
   Color,
+  confirmAlert,
   getApplications,
   Icon,
   List,
@@ -21,9 +23,21 @@ import { cityName, localTime, systemTimeZone, TIME_ZONES, utcOffset } from "./ti
 const RAYCAST_BUNDLE_IDS = new Set(["com.raycast.macos", "com.raycast.macos.internal"]);
 
 async function openWithTimeZone(app: Application, timeZone: string, onOpened: () => Promise<void>) {
-  const toast = await showToast({ style: Toast.Style.Animated, title: `Opening ${app.name} with TZ=${timeZone}…` });
+  let toast: Promise<Toast> | undefined;
+  const onProgress = (title: string) => {
+    toast = toast ? toast.then((t) => Object.assign(t, { title })) : showToast({ style: Toast.Style.Animated, title });
+  };
+  const confirmQuit = () =>
+    confirmAlert({
+      icon: { fileIcon: app.path },
+      title: `Restart ${app.name}?`,
+      message: `${app.name} is running. It will be quit and reopened with TZ=${timeZone}; unsaved work may be lost.`,
+      primaryAction: { title: "Restart", style: Alert.ActionStyle.Destructive },
+    });
   try {
-    const { pid, verified } = await relaunchWithTimeZone(app.path, timeZone, (message) => (toast.title = message));
+    const result = await relaunchWithTimeZone(app.path, timeZone, { onProgress, confirmQuit });
+    if (!result) return;
+    const { pid, verified } = result;
     await onOpened();
     await showHUD(
       verified

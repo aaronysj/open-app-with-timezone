@@ -45,12 +45,15 @@ async function waitFor<T>(probe: () => Promise<T>, done: (value: T) => boolean, 
  * XPC services such as WKWebView's WebKit processes), then verify the new process carries TZ.
  * `verified` is false when macOS hides the process environment (e.g. Apple system apps),
  * in which case TZ was passed but cannot be confirmed.
+ * If the app is running, `confirmQuit` is asked first; declining resolves with `undefined`
+ * and leaves the app untouched.
  */
 export async function relaunchWithTimeZone(
   appPath: string,
   tz: string,
-  onProgress: (message: string) => void = () => {},
-): Promise<{ pid: number; verified: boolean }> {
+  hooks: { onProgress?: (message: string) => void; confirmQuit?: () => Promise<boolean> } = {},
+): Promise<{ pid: number; verified: boolean } | undefined> {
+  const { onProgress = () => {}, confirmQuit = async () => true } = hooks;
   const appName = basename(appPath);
   if (!isValidTimeZone(tz)) throw new Error(`Unknown time zone: ${tz}`);
 
@@ -60,6 +63,7 @@ export async function relaunchWithTimeZone(
 
   const runningPid = await mainPid(executable);
   if (runningPid !== undefined) {
+    if (!(await confirmQuit())) return undefined;
     onProgress(`Quitting ${appName}…`);
     try {
       await run("/usr/bin/osascript", ["-e", `tell application id "${bundleId}" to quit`]);
