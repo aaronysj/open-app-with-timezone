@@ -17,7 +17,7 @@
     {
       "name": "open-app-with-timezone",
       "title": "Open App with Time Zone",
-      "description": "Search an app and press Enter to (re)launch it with its remembered time zone (Asia/Shanghai by default).",
+      "description": "Search an app and press Enter to (re)launch it with its remembered time zone (system time zone by default).",
       "mode": "view"
     }
   ],

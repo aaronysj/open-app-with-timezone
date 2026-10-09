@@ -1,6 +1,10 @@
-const zones = Intl.supportedValuesOf("timeZone");
+export function systemTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
 
-export const TIME_ZONES: string[] = zones.includes("UTC") ? zones : ["UTC", ...zones];
+export const TIME_ZONES: string[] = [
+  ...new Set(["UTC", systemTimeZone(), ...Intl.supportedValuesOf("timeZone")]),
+].sort();
 
 export function utcOffset(tz: string, at = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "shortOffset" }).formatToParts(at);

@@ -16,9 +16,8 @@ import { showFailureToast, useLocalStorage, usePromise } from "@raycast/utils";
 import { useMemo } from "react";
 import { AppRecords, rankApps } from "./ranking";
 import { relaunchWithTimeZone } from "./relaunch";
-import { cityName, localTime, TIME_ZONES, utcOffset } from "./time-zones";
+import { cityName, localTime, systemTimeZone, TIME_ZONES, utcOffset } from "./time-zones";
 
-const DEFAULT_TIME_ZONE = "Asia/Shanghai";
 const RAYCAST_BUNDLE_IDS = new Set(["com.raycast.macos", "com.raycast.macos.internal"]);
 
 async function openWithTimeZone(app: Application, timeZone: string, onOpened: () => Promise<void>) {
@@ -54,7 +53,7 @@ export default function Command() {
 
   const timeZoneOf = (app: Application) => {
     const tz = records[app.path]?.timeZone;
-    return tz && TIME_ZONES.includes(tz) ? tz : DEFAULT_TIME_ZONE;
+    return tz && TIME_ZONES.includes(tz) ? tz : systemTimeZone();
   };
   const rememberTimeZone = (app: Application, timeZone: string) =>
     setRecords({ ...records, [app.path]: { opens: records[app.path]?.opens ?? 0, timeZone } });
